@@ -2,6 +2,9 @@ package com.jaroid.retrofitdemo;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,6 +28,8 @@ public class MainActivity extends AppCompatActivity {
     private DogServices dogServices;
 
     private ImageView imgDogRandom;
+    private Button btnSearch;
+    private EditText edtSearch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,14 +37,45 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         imgDogRandom = findViewById(R.id.imgDogRandom);
-        initData();
-//        getPostById(200);
+        edtSearch = findViewById(R.id.edtSearch);
+        btnSearch = findViewById(R.id.btnSearch);
 
-//        getAllPost();
-//        getAllPostString();
+        initData();
+
+        btnSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getImageDogRandom(edtSearch.getText().toString());
+            }
+        });
+
+
         getAllDog();
         getAllDogModel();
         getImageDogRandom();
+    }
+
+    private void getImageDogRandom(String dogBreed) {
+        Log.d(TAG, "getImageDogRandom: "+dogBreed);
+        dogServices.getImageDogRandom(dogBreed.toLowerCase()).enqueue(new Callback<ImageDogModel>() {
+            @Override
+            public void onResponse(Call<ImageDogModel> call, Response<ImageDogModel> response) {
+                if (response.isSuccessful()) {
+                    if (response.code() == 200) {
+                        ImageDogModel imageDogModel = response.body();
+                        Glide
+                                .with(MainActivity.this)
+                                .load(imageDogModel.getMessage())
+                                .into(imgDogRandom);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ImageDogModel> call, Throwable t) {
+                Log.d(TAG, "onFailure: "+t.getMessage());
+            }
+        });
     }
 
     private void getImageDogRandom() {

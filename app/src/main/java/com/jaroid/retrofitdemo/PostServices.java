@@ -18,5 +18,4 @@ public interface PostServices {
 
     @GET("posts/{id}")
     Call<PostResponse> getPostById(@Path("id") int id);
-
 }
